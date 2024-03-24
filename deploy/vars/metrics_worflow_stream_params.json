@@ -1,0 +1,7 @@
+{
+  "kafkaHost" : "localhost:9092",
+  "kafkaConsumerGroup" : "Metrics_workflow_stream_to_parquet_1",
+  "metricsTopicName" : "Metrics",
+  "hdfsPath" : "/data/metrics_workflow_stream_job/Metrics/delta/parquet",
+  "hdfsOffsetsPath" : "/data/metrics_workflow_stream_job/offsets/Metrics/parquet"
+}

@@ -1,0 +1,5 @@
+{
+  "cleanerDataName": "metrics_workflow_delta_data_cleaner_app",
+  "hdfsDataPath" : "/data/metrics_workflow_stream_job/Metrics/delta/parquet",
+  "skipTrash" : "true"
+}

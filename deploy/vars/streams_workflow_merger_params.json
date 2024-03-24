@@ -1,0 +1,11 @@
+{
+  "hdfsPostsPath" : "/data/posts_stream_job/Posts/delta/parquet",
+  "hdfsOffsetsPostsPath" : "/data/posts_stream_job/offsets/Posts/parquet",
+  "hdfsBlogsPath" : "/data/blogs_stream_job/Blogs/delta/parquet",
+  "hdfsOffsetsBlogsPath" : "/data/blogs_stream_job/offsets/Blogs/parquet",
+  "hdfsMetricsPath" : "/data/metrics_stream_job/Metrics/delta/parquet",
+  "hdfsOffsetsMetricsPath" : "/data/metrics_stream_job/offsets/Metrics/parquet",
+  "hdfsMergedBlogsPath" : "/data/blogs/parquet",
+  "hdfsMergedPostsPath" : "/data/posts/parquet",
+  "hdfsSkipTrash": true
+}

@@ -1,0 +1,5 @@
+{
+  "cleanerDataName": "blogs_workflow_data_cleaner_app",
+  "hdfsDataPath" : "/data/blogs/parquet",
+  "skipTrash" : "true"
+}

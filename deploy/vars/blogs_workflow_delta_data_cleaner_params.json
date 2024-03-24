@@ -1,0 +1,5 @@
+{
+  "cleanerDataName": "blogs_workflow_delta_data_cleaner_app",
+  "hdfsDataPath" : "/data/blogs_workflow_stream_job/Blogs/delta/parquet",
+  "skipTrash" : "true"
+}

@@ -1,0 +1,7 @@
+{
+  "kafkaHost" : "locahost:9092",
+  "kafkaConsumerGroup" : "Posts_workflow_stream_to_parquet_1",
+  "postsTopicName" : "Posts",
+  "hdfsPath" : "/data/posts_workflow_stream_job/Posts/delta/parquet",
+  "hdfsOffsetsPath" : "/data/posts_workflow_stream_job/offsets/Posts/parquet"
+}

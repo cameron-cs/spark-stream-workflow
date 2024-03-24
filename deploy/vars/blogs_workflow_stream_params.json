@@ -1,0 +1,7 @@
+{
+  "kafkaHost" : "localhost:9092",
+  "kafkaConsumerGroup" : "Blogs_workflow_stream_to_parquet_1",
+  "blogsTopicName" : "Blogs",
+  "hdfsPath" : "/data/blogs_workflow_stream_job/Blogs/delta/parquet",
+  "hdfsOffsetsPath" : "/data/blogs_workflow_stream_job/offsets/Blogs/parquet"
+}
