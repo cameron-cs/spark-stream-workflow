@@ -29,7 +29,7 @@ hdfs_offsets_path = airflow_var['hdfsOffsetsPath']
 spark_job = SparkSubmitOperator(
     task_id='blogs_workflow_stream_job',
     jars='/usr/lib/spark/jars/spark-sql-kafka-0-10_2.11-2.4.4.jar',
-    yarn_queue='zeppelin',
+    yarn_queue='default',
     java_class = 'org.cameron.cs.BlogsWorkflowStreamApp',
     application='/usr/local/airflow/spark/blogs_workflow_stream/blogs_workflow_stream.jar',
     name='blogs_workflow_stream_job',
@@ -45,7 +45,7 @@ spark_job = SparkSubmitOperator(
         "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
         "spark.dynamicAllocation.enabled": "true",
         "spark.hadoop.validateOutputSpecs": "false",
-        "spark.yarn.queue": "zeppelin",
+        "spark.yarn.queue": "default",
         "spark.shuffle.service.enabled": "true",
         "spark.dynamicAllocation.initialExecutors": "2",
         "spark.dynamicAllocation.minExecutors": "1",

@@ -85,7 +85,7 @@ start = PythonOperator(
 
 spark_blogs_workflow_job = SparkSubmitOperator(
     task_id='streams_blogs_workflow_merger_job',
-    yarn_queue='zeppelin',
+    yarn_queue='default',
     java_class = 'org.cameron.cs.BlogsStreamsMergerApp',
     application='/usr/local/airflow/spark/streams_workflow_merger/streams_workflow_merger.jar',
     name='streams_blogs_workflow_merger_job',
@@ -93,7 +93,7 @@ spark_blogs_workflow_job = SparkSubmitOperator(
         "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
         "spark.dynamicAllocation.enabled": "true",
         "spark.hadoop.validateOutputSpecs": "false",
-        "spark.yarn.queue": "zeppelin",
+        "spark.yarn.queue": "default",
         "spark.shuffle.service.enabled": "true",
         "spark.dynamicAllocation.initialExecutors": "5",
         "spark.dynamicAllocation.minExecutors": "5",
@@ -126,7 +126,7 @@ spark_blogs_workflow_job = SparkSubmitOperator(
 
 spark_posts_workflow_job = SparkSubmitOperator(
     task_id='streams_posts_workflow_merger_job',
-    yarn_queue='zeppelin',
+    yarn_queue='default',
     java_class = 'org.cameron.cs.PostsStreamsMergerApp',
     application='/usr/local/airflow/spark/streams_workflow_merger/streams_workflow_merger.jar',
     name='streams_posts_workflow_merger_job',
@@ -134,7 +134,7 @@ spark_posts_workflow_job = SparkSubmitOperator(
         "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
         "spark.dynamicAllocation.enabled": "true",
         "spark.hadoop.validateOutputSpecs": "false",
-        "spark.yarn.queue": "zeppelin",
+        "spark.yarn.queue": "default",
         "spark.shuffle.service.enabled": "true",
         "spark.dynamicAllocation.initialExecutors": "5",
         "spark.dynamicAllocation.minExecutors": "5",

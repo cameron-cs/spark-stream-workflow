@@ -83,7 +83,7 @@ start = PythonOperator(
 
 spark_blogs_workflow_delta_data_cleaner_job = SparkSubmitOperator(
     task_id='spark_blogs_workflow_delta_data_cleaner_job',
-    yarn_queue='zeppelin',
+    yarn_queue='default',
     java_class = 'org.cameron.cs.BlogsDeltaCleanerApp',
     application='/usr/local/airflow/spark/data_cleaner/data_cleaner.jar',
     name='spark_blogs_workflow_delta_data_cleaner_job',
@@ -91,7 +91,7 @@ spark_blogs_workflow_delta_data_cleaner_job = SparkSubmitOperator(
         "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
         "spark.dynamicAllocation.enabled": "true",
         "spark.hadoop.validateOutputSpecs": "false",
-        "spark.yarn.queue": "zeppelin",
+        "spark.yarn.queue": "default",
         "spark.shuffle.service.enabled": "true",
         "spark.dynamicAllocation.initialExecutors": "5",
         "spark.dynamicAllocation.minExecutors": "5",
@@ -116,7 +116,7 @@ spark_blogs_workflow_delta_data_cleaner_job = SparkSubmitOperator(
 
 spark_blogs_workflow_data_cleaner_job = SparkSubmitOperator(
     task_id='spark_blogs_workflow_data_cleaner_job',
-    yarn_queue='zeppelin',
+    yarn_queue='default',
     java_class = 'org.cameron.cs.BlogsCleanerApp',
     application='/usr/local/airflow/spark/data_workflow_cleaner/data_workflow_cleaner.jar',
     name='spark_blogs_workflow_data_cleaner_job',
@@ -124,7 +124,7 @@ spark_blogs_workflow_data_cleaner_job = SparkSubmitOperator(
         "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
         "spark.dynamicAllocation.enabled": "true",
         "spark.hadoop.validateOutputSpecs": "false",
-        "spark.yarn.queue": "zeppelin",
+        "spark.yarn.queue": "default",
         "spark.shuffle.service.enabled": "true",
         "spark.dynamicAllocation.initialExecutors": "5",
         "spark.dynamicAllocation.minExecutors": "5",
@@ -150,7 +150,7 @@ spark_blogs_workflow_data_cleaner_job = SparkSubmitOperator(
 
 spark_metrics_workflow_delta_data_cleaner_job = SparkSubmitOperator(
     task_id='spark_metrics_workflow_delta_data_cleaner_job',
-    yarn_queue='zeppelin',
+    yarn_queue='default',
     java_class = 'org.cameron.cs.MetricsDeltaCleanerApp',
     application='/usr/local/airflow/spark/data_workflow_cleaner/data_workflow_cleaner.jar',
     name='spark_metrics_workflow_delta_data_cleaner_job',
@@ -158,7 +158,7 @@ spark_metrics_workflow_delta_data_cleaner_job = SparkSubmitOperator(
         "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
         "spark.dynamicAllocation.enabled": "true",
         "spark.hadoop.validateOutputSpecs": "false",
-        "spark.yarn.queue": "zeppelin",
+        "spark.yarn.queue": "default",
         "spark.shuffle.service.enabled": "true",
         "spark.dynamicAllocation.initialExecutors": "5",
         "spark.dynamicAllocation.minExecutors": "5",
@@ -183,7 +183,7 @@ spark_metrics_workflow_delta_data_cleaner_job = SparkSubmitOperator(
 
 spark_posts_workflow_delta_data_cleaner_job = SparkSubmitOperator(
     task_id='spark_posts_workflow_delta_data_cleaner_job',
-    yarn_queue='zeppelin',
+    yarn_queue='default',
     java_class = 'org.cameron.cs.PostsDeltaCleanerApp',
     application='/usr/local/airflow/spark/data_workflow_cleaner/data_workflow_cleaner.jar',
     name='spark_posts_workflow_delta_data_cleaner_job',
@@ -191,7 +191,7 @@ spark_posts_workflow_delta_data_cleaner_job = SparkSubmitOperator(
         "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
         "spark.dynamicAllocation.enabled": "true",
         "spark.hadoop.validateOutputSpecs": "false",
-        "spark.yarn.queue": "zeppelin",
+        "spark.yarn.queue": "default",
         "spark.shuffle.service.enabled": "true",
         "spark.dynamicAllocation.initialExecutors": "5",
         "spark.dynamicAllocation.minExecutors": "5",
