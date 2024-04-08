@@ -375,7 +375,7 @@ class StreamsWorkflowMergerProcessor(spark: SparkSession, conf: StreamsWorkflowM
 
   def processMergePosts(): Unit = {
     val execDate: String = conf.execDate.replace("-", "")
-    val lowerBound: String = conf.lowerBound.replace("-", "")
+    val lowerBound: String = conf.lowerBound
     val postsPath = conf.postsPath
     val metricsPath = conf.metricsPath
     val mergedPostsPath = conf.mergedPostsPath
