@@ -22,22 +22,22 @@ dag = DAG(dag_id='data_workflow_cleaner_job_dag',
 
 
 airflow_blogs_workflow_delta_data_cleaner_var = Variable.get("blogs_workflow_delta_data_cleaner_params", deserialize_json=True)
-hdfs_blogs_workflow_delta_data_path = airflow_blogs_workflow_delta_data_cleaner_var['hdfsBlogsPath']
+hdfs_blogs_workflow_delta_data_path = airflow_blogs_workflow_delta_data_cleaner_var['hdfsDataPath']
 blogs_workflow_delta_data_cleaner_name = airflow_blogs_workflow_delta_data_cleaner_var['cleanerDataName']
 blogs_workflow_delta_data_cleaner_skip_trash = airflow_blogs_workflow_delta_data_cleaner_var['skipTrash']
 
 airflow_blogs_workflow_data_cleaner_var = Variable.get("blogs_workflow_data_cleaner_params", deserialize_json=True)
-hdfs_blogs_workflow_data_path = airflow_blogs_workflow_data_cleaner_var['hdfsBlogsPath']
+hdfs_blogs_workflow_data_path = airflow_blogs_workflow_data_cleaner_var['hdfsDataPath']
 blogs_data_workflow_cleaner_name = airflow_blogs_workflow_data_cleaner_var['cleanerDataName']
 blogs_data_workflow_cleaner_skip_trash = airflow_blogs_workflow_data_cleaner_var['skipTrash']
 
 airflow_metrics_workflow_delta_data_cleaner_var = Variable.get("metrics_workflow_delta_data_cleaner_params", deserialize_json=True)
-hdfs_metrics_workflow_delta_data_path = airflow_metrics_workflow_delta_data_cleaner_var['hdfsBlogsPath']
+hdfs_metrics_workflow_delta_data_path = airflow_metrics_workflow_delta_data_cleaner_var['hdfsDataPath']
 metrics_delta_workflow_data_cleaner_name = airflow_metrics_workflow_delta_data_cleaner_var['cleanerDataName']
 metrics_delta_workflow_data_cleaner_skip_trash = airflow_metrics_workflow_delta_data_cleaner_var['skipTrash']
 
 airflow_posts_workflow_delta_data_cleaner_var = Variable.get("posts_workflow_delta_data_cleaner_params", deserialize_json=True)
-hdfs_posts_workflow_delta_data_path = airflow_posts_workflow_delta_data_cleaner_var['hdfsBlogsPath']
+hdfs_posts_workflow_delta_data_path = airflow_posts_workflow_delta_data_cleaner_var['hdfsDataPath']
 posts_delta_workflow_data_cleaner_name = airflow_posts_workflow_delta_data_cleaner_var['cleanerDataName']
 posts_delta_workflow_data_cleaner_skip_trash = airflow_posts_workflow_delta_data_cleaner_var['skipTrash']
 self_only = True

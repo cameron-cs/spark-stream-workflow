@@ -358,10 +358,10 @@ class StreamsWorkflowMergerProcessor(spark: SparkSession, conf: StreamsWorkflowM
     val blogsPath = conf.blogsPath
     val mergedBlogsPath = conf.mergedBlogsPath
 
-    logInfo(s"execDate: ${conf.execDate}")
-    logInfo(s"prevExecDate: ${conf.prevExecDate}")
-    logInfo(s"blogsPath: ${conf.blogsPath}")
-    logInfo(s"mergedBlogsPath: ${conf.mergedBlogsPath}")
+    logInfo(s"execDate: $execDate")
+    logInfo(s"prevExecDate: $prevExecDate")
+    logInfo(s"blogsPath: $blogsPath")
+    logInfo(s"mergedBlogsPath: $mergedBlogsPath")
 
     try {
       logInfo(s"Starting the process of merging blogs... [execDate = $execDate, prevExecDate = $prevExecDate, blogsPath = $blogsPath, mergedBlogsPath = $mergedBlogsPath]")
@@ -381,12 +381,12 @@ class StreamsWorkflowMergerProcessor(spark: SparkSession, conf: StreamsWorkflowM
     val mergedPostsPath = conf.mergedPostsPath
     val skipTrash = conf.skipTrash.toLowerCase.toBoolean
 
-    logInfo(s"execDate: ${conf.execDate}")
-    logInfo(s"lowerBound: ${conf.lowerBound}")
-    logInfo(s"postsPath: ${conf.postsPath}")
-    logInfo(s"metricsPath: ${conf.metricsPath}")
-    logInfo(s"mergedPostsPath: ${conf.mergedPostsPath}")
-    logInfo(s"skipTrash: ${conf.skipTrash.toLowerCase.toBoolean}")
+    logInfo(s"execDate: $execDate")
+    logInfo(s"lowerBound: $lowerBound")
+    logInfo(s"postsPath: $postsPath")
+    logInfo(s"metricsPath: $metricsPath")
+    logInfo(s"mergedPostsPath: $mergedPostsPath")
+    logInfo(s"skipTrash: $skipTrash")
 
     try {
       logInfo(s"Starting to process of merging posts with metrics... [execDate = $execDate, postsPath = $postsPath, mergedPostsPath = $mergedPostsPath, metricsPath = $metricsPath, lowerBound = $lowerBound, skipTrash = $skipTrash]")
