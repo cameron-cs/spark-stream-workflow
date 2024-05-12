@@ -5,7 +5,7 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.types.{StringType, StructType}
 import org.cameron.cs.metrics.MetricsSchema
 import org.cameron.cs.posts.{PostPartition, PostsSchema}
 
@@ -151,6 +151,7 @@ class StreamsWorkflowMergerProcessor(spark: SparkSession, conf: StreamsWorkflowM
                          postsDeltaPath: String,
                          metricsDeltaPath: String,
                          execDate: String): Seq[PostPartition] = {
+    logInfo(s"Making post partitions: postDatePartitions = $postDatePartitions")
     val tempBasePath = s"$mergedPostsPath/temp/$execDate"
 
     val windowPartitionByPostIdTs =
@@ -159,6 +160,7 @@ class StreamsWorkflowMergerProcessor(spark: SparkSession, conf: StreamsWorkflowM
         .orderBy($"metricstimestamp".desc_nulls_last, $"currenttimestamp".desc_nulls_last)
 
     postDatePartitions.map { date =>
+      logInfo(s"Making post partitions: processing the '$date' partition")
       val partitionPath = s"$mergedPostsPath/partdate=$date"
       val hdfsPath = new Path(partitionPath)
 
@@ -189,6 +191,7 @@ class StreamsWorkflowMergerProcessor(spark: SparkSession, conf: StreamsWorkflowM
           .filter($"rn" === 1)
           .drop("rn")
 
+      logInfo(s"Created the next PostPartition(partDate = $date, path = ${hdfsPath.toString}, exists = $pathExists, tempPath = $tempPathOpt)")
       PostPartition(
         partDate = date,
         path = hdfsPath,
@@ -230,10 +233,10 @@ class StreamsWorkflowMergerProcessor(spark: SparkSession, conf: StreamsWorkflowM
    *          val mergerProcessor = new StreamsMergerProcessor(spark, config)
    *          mergerProcessor.mergePostsAndMetrics("2023-01-01", "/path/to/posts", PostsSchema.schema,
    *                                               "/path/to/mergedPosts", "/path/to/metrics", MetricsSchema.schema,
-   *                                               "2022-12-31", false)
+   *                                               "2022-12-31", false, 10)
    *           }}}
    */
-  def mergePostsAndMetrics(execDate: String,
+  def mergePostsAndMetrics(execDateRaw: String,
                            postsPath: String,
                            postsSchema: StructType,
                            mergedPostsPath: String,
@@ -241,64 +244,90 @@ class StreamsWorkflowMergerProcessor(spark: SparkSession, conf: StreamsWorkflowM
                            metricsSchema: StructType,
                            lowerBound: String,
                            skipTrash: Boolean,
-                           format: String = "parquet"): Unit = {
+                           format: String = "parquet",
+                           batchSize: Int = 10): Unit = {
     val datePattern = "yyyy-MM-dd"
+    val execDate = execDateRaw.replace("-", "")
 
+    // load and prepare metrics and posts deltas
     val metricsDeltaPath = s"$metricsPath/$execDate/*"
     logInfo(s"""Reading the metrics deltas in HDFS: ["$metricsDeltaPath"]""")
     val metricsDelta = spark.read.schema(metricsSchema).format(format).load(metricsDeltaPath)
+      .withColumn("partdate_date", to_date($"partdate", datePattern))
+      .filter(($"partdate_date" >= lowerBound) && ($"partdate_date" <= execDateRaw))
+      .drop("partdate_date")
 
     val postsDeltaPath = s"$postsPath/$execDate/*"
     logInfo(s"""Reading the posts deltas in HDFS: ["$postsDeltaPath"]""")
     val postsDelta = spark.read.schema(postsSchema).format(format).load(postsDeltaPath)
       .withColumn("partdate_date", to_date($"partdate", datePattern))
-      .filter(($"partdate_date" >= lowerBound) && ($"partdate_date" <= execDate))
+      .filter(($"partdate_date" >= lowerBound) && ($"partdate_date" <= execDateRaw))
 
-    logInfo(s"""Merging the posts deltas ($execDate) with the metrics deltas ($execDate)""")
-    val postsWithMetricsRaw = mergeDeltaPostsWithDeltaMetrics(execDate, postsDelta, metricsDelta, lowerBound)
+    // collect distinct partitions to merge and batch them
+    val postDatePartitions = postsDelta.select($"partdate_date".cast(StringType)).distinct().as[String].collect().toList.sorted
+    logInfo(s"Found the next posts partitions: $postDatePartitions")
+    val batches = postDatePartitions.grouped(batchSize).toSeq
+    logInfo(s"Initialized the next batches: \n" +
+      s"${
+        batches.zipWithIndex.map { case (batch, index) =>
+          s"Batch ${index + 1}: ${batch.mkString("Partitions(", ", ", ")")}"
+        }.mkString("\n")
+      }" +
+      s"")
 
-    val windowPartitionByPostId =
-      Window
-        .partitionBy("post_id")
-        .orderBy($"metricstimestamp".desc, $"metrictimestamp".desc)
+    // process each batch separately
+    batches.foreach { batch =>
+      val postsBatchDelta = postsDelta.filter($"partdate_date".isin(batch: _*))
+      val metricsBatchDelta = metricsDelta.filter($"partdate_date".isin(batch: _*))
 
-    val postsWithMetrics =
-      postsWithMetricsRaw
-        .withColumn("rn", row_number().over(windowPartitionByPostId))
-        .filter($"rn" === 1)
-        .drop("rn")
+      // merge batch of posts and metrics
+      logInfo(s"""Batch {$batch}: merging the posts deltas ($execDateRaw) with the metrics deltas ($execDateRaw)""")
+      val postsWithMetricsRaw = mergeDeltaPostsWithDeltaMetrics(execDate, postsBatchDelta, metricsBatchDelta, lowerBound)
 
-    val postDatePartitions = postsWithMetrics.select($"partdate_pmd").distinct().as[String].collect().toList.sorted
-    val hdfs = FileSystem.get(spark.sparkContext.hadoopConfiguration)
+      // window for partitioning by post_id and sorting by timestamps
+      val windowPartitionByPostId =
+        Window
+          .partitionBy("post_id")
+          .orderBy($"metricstimestamp".desc, $"metrictimestamp".desc)
 
-    val postsPartitioned = makePostPartitions(postDatePartitions, postsWithMetrics, hdfs, mergedPostsPath, postsDeltaPath, metricsDeltaPath, execDate)
+      // process the merged data to retain the latest information
+      val postsWithMetrics =
+        postsWithMetricsRaw
+          .withColumn("rn", row_number().over(windowPartitionByPostId))
+          .filter($"rn" === 1)
+          .drop("rn")
 
-    postsPartitioned.foreach { postPartition =>
-      val tempPath = postPartition.tempPath
-      val targetPath = postPartition.path
+      // handle partitioning and writing data using makePostPartitions function
+      val hdfs = FileSystem.get(spark.sparkContext.hadoopConfiguration)
+      val postsPartitioned = makePostPartitions(batch, postsWithMetrics, hdfs, mergedPostsPath, postsDeltaPath, metricsDeltaPath, execDate)
 
-      if (postPartition.exists) {
-        val tempPathHdfs = tempPath.get
-        logInfo(s"""Saving the newest posts data to the temporary path [tempPath = "$tempPathHdfs"]""")
-        writePartitionedByDatePosts(postPartition.dataframe, tempPathHdfs)
+      postsPartitioned.foreach { postPartition =>
+        val tempPath = postPartition.tempPath
+        val targetPath = postPartition.path
 
-        logInfo(s"""Moving the posts data [from="$tempPath", to="$targetPath"]""")
-        if (skipTrash) {
-          logInfo(s"Skipping trash, deleting data permanently from [$targetPath], since the parameter 'skipTrash' = '$skipTrash'")
-          hdfs.delete(targetPath, true)
-        } else {
-          logInfo(s"Moving deleted data to trash from [$targetPath]")
-          val trash = new Trash(hdfs.getConf)
-          if (!trash.moveToTrash(targetPath)) {
-            logWarning(s"Failed to move [$targetPath] to Trash. Deleting it permanently.")
+        if (postPartition.exists) {
+          val tempPathHdfs = tempPath.get
+          logInfo(s"""Saving the newest posts data to the temporary path [tempPath = "$tempPathHdfs"]""")
+          writePartitionedByDatePosts(postPartition.dataframe, tempPathHdfs)
+
+          logInfo(s"""Moving the posts data [from="$tempPath", to="$targetPath"]""")
+          if (skipTrash) {
+            logInfo(s"Skipping trash, deleting data permanently from [$targetPath], since the parameter 'skipTrash' = '$skipTrash'")
             hdfs.delete(targetPath, true)
+          } else {
+            logInfo(s"Moving deleted data to trash from [$targetPath]")
+            val trash = new Trash(hdfs.getConf)
+            if (!trash.moveToTrash(targetPath)) {
+              logWarning(s"Failed to move [$targetPath] to Trash. Deleting it permanently.")
+              hdfs.delete(targetPath, true)
+            }
           }
+          val tempPathSource = new Path(tempPathHdfs)
+          hdfs.rename(tempPathSource, targetPath)
+        } else {
+          logInfo(s"""Writing the newest posts data ["$targetPath"]""")
+          writePartitionedByDatePosts(postPartition.dataframe, s"$targetPath")
         }
-        val tempPathSource = new Path(tempPathHdfs)
-        hdfs.rename(tempPathSource, targetPath)
-      } else {
-        logInfo(s"""Writing the newest posts data ["$targetPath"]""")
-        writePartitionedByDatePosts(postPartition.dataframe, s"$targetPath")
       }
     }
   }

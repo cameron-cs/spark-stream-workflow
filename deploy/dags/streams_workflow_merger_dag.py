@@ -34,6 +34,7 @@ hdfs_merged_posts = airflow_var['hdfsMergedPostsPath']
 skip_trash = airflow_var['hdfsSkipTrash']
 self_only = airflow_var['selfOnly']
 edge_name = airflow_var['edgeName']
+batch_size = airflow_var['batchSize']
 
 exec_date = ''
 prev_exec_date = ''
@@ -159,7 +160,8 @@ spark_posts_workflow_job = SparkSubmitOperator(
         '--mo', hdfs_offsets_metrics,
         '--mb', hdfs_merged_blogs,
         '--mp', hdfs_merged_posts,
-        '--skipTrash', str(skip_trash)
+        '--skipTrash', str(skip_trash),
+        "--batchSize", str(batch_size)
     ],
     dag=dag
 )

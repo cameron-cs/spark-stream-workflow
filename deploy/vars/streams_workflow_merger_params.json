@@ -7,5 +7,6 @@
   "hdfsOffsetsMetricsPath" : "/data/metrics_stream_job/offsets/Metrics/parquet",
   "hdfsMergedBlogsPath" : "/data/blogs/parquet",
   "hdfsMergedPostsPath" : "/data/posts/parquet",
-  "hdfsSkipTrash": true
+  "hdfsSkipTrash": true,
+  "batchSize": "10"
 }

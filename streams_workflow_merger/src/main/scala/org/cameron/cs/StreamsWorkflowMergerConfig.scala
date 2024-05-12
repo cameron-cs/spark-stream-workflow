@@ -29,7 +29,8 @@ case class StreamsWorkflowMergerConfig(execDate: String           = "",
                                        blogsOffsetsPath: String   = "",
                                        mergedBlogsPath: String    = "",
                                        mergedPostsPath: String    = "",
-                                       skipTrash: String          = "true")
+                                       skipTrash: String          = "true",
+                                       batchSize: String = "10")
 
 /**
  * Configuration class for PostsStreamApp.
@@ -94,7 +95,11 @@ object StreamsWorkflowMergerConfig {
 
       opt[String] ("skipTrash")
         .action((x, c) => c.copy(skipTrash = x))
-        .text("HDFS skipTrash param [removing permanently]")
+        .text("HDFS skipTrash param [removing permanently]"),
+
+      opt[String]("batchSize")
+        .action((x, c) => c.copy(batchSize = x))
+        .text("Batch size for merging metrics with posts")
     )
   }
 }
